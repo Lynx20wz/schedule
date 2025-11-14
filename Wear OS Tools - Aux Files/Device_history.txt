@@ -1,0 +1,7 @@
+ 
+ ====================== 
+ DEVICE HISTORY LOG... 
+ ====================== 
+ 
+    Date       Time          IP Device     port                Device 
+ Fri 11/14/2025 14:58:54.95    192.168.50.57  41825        xiaomi Xiaomi Watch 2  
