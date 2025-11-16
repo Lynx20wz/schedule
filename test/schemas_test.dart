@@ -1,4 +1,5 @@
-import 'package:schedule/schemas.dart';
+import 'package:schedule/classes/lesson.dart';
+import 'package:schedule/classes/schedule.dart';
 import 'package:test/test.dart';
 
 void main() {
@@ -11,7 +12,7 @@ void main() {
         'finish_at': '2024-01-01T12:10:30+03:00',
       };
 
-      final lesson = Lesson.fromJson(json);
+      final lesson = Lesson.fromMap(json);
 
       expect(lesson.name, 'Math');
       expect(lesson.room, '101');
@@ -40,7 +41,7 @@ void main() {
         ],
       };
 
-      final Schedule schedule = Schedule.fromJson(json);
+      final Schedule schedule = Schedule.fromMap(json);
 
       expect(schedule.totalCount, 2);
       expect(schedule.lessons, hasLength(2));
@@ -75,7 +76,7 @@ void main() {
         ],
       };
 
-      final schedule = Schedule.fromJson(json);
+      final schedule = Schedule.fromMap(json);
 
       expect(schedule.days, {
         'monday': [schedule.lessons[0]],
