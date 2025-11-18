@@ -9,38 +9,20 @@ class LessonWidget extends StatelessWidget {
   const LessonWidget(this.lesson, {super.key});
 
   @override
-  Widget build(BuildContext context) {
-    final theme = Theme.of(context);
-    return WearOsClipper(
-      child: Container(
-        decoration: BoxDecoration(
-          borderRadius: BorderRadius.circular(8),
-          color: theme.colorScheme.secondaryContainer,
-        ),
-        child: Container(
-          margin: const EdgeInsets.symmetric(horizontal: 4, vertical: 2),
-          child: Column(
-            crossAxisAlignment: CrossAxisAlignment.start,
-            children: [
-              Text(
-                lesson.name,
-                style: const TextStyle(
-                  fontWeight: FontWeight.bold,
-                  fontSize: 16,
-                ),
-              ),
-              Text(
-                lesson.room.toString(),
-                textAlign: TextAlign.left,
-                style: TextStyle(
-                  fontSize: 14,
-                  color: theme.textTheme.headlineSmall?.color,
-                ),
-              ),
-            ],
-          ),
-        ),
+  Widget build(BuildContext context) => WearOsClipper(
+    child: Container(
+      decoration: BoxDecoration(
+        borderRadius: BorderRadius.circular(8),
+        color: Theme.of(context).colorScheme.secondaryContainer,
       ),
-    );
-  }
+      child: ListTile(
+        title: Text(lesson.name),
+        subtitle: Text(lesson.room),
+        contentPadding: const EdgeInsets.symmetric(horizontal: 8),
+        trailing: lesson.marks.isNotEmpty
+            ? Text(lesson.marks[0].mark.toString())
+            : null,
+      ),
+    ),
+  );
 }

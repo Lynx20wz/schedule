@@ -1,12 +1,15 @@
+import 'dart:developer' show log;
+
 import 'package:dio/dio.dart';
 import 'package:intl/intl.dart' show DateFormat;
 
 final Dio dio = Dio();
 
 class Parser {
-  final DateTime _currentDay = DateTime.now();
-  String _formatDay({DateTime? date}) =>
-      DateFormat('yyyy-MM-dd').format(date ?? DateTime.now());
+  static final DateTime _currentDay = DateTime.now();
+  // static final DateTime _currentDay = DateTime(2025, 11, 10); // TODO for tests!
+  static String _formatDay({DateTime? date}) =>
+      DateFormat('yyyy-MM-dd').format(date ?? _currentDay);
 
   static const String _baseUrl = 'https://authedu.mosreg.ru/api';
   static const String _studentId = 'dd0e6044-138c-4e52-89ab-f2a0da9c9b7c';
@@ -44,6 +47,10 @@ class Parser {
       queryParameters: params,
       options: Options(headers: _headers),
     );
+    log(
+      'Schedule:\nfrom ${params['begin_date']}\nto ${params['end_date']}\n$response',
+    );
+
     return response.data;
   }
 }

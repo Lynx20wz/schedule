@@ -21,7 +21,8 @@ class Lesson {
       name: subjectName,
       room: map['room_number'],
       marks: List<Marks>.from(
-        map['marks'].map((markMap) => Marks.fromMap(subjectName, markMap)),
+        map['marks']?.map((markMap) => Marks.fromMap(subjectName, markMap)) ??
+            [],
       ),
       startAt: DateTime.parse(map['start_at']),
       finishAt: DateTime.parse(map['finish_at']),

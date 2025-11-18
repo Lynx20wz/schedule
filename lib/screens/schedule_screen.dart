@@ -14,9 +14,9 @@ class ScheduleScreen extends StatefulWidget {
 }
 
 class _ScheduleScreenState extends State<ScheduleScreen> {
-  final String currentWeekday = Weekday.fromIndex(DateTime.now().weekday).name;
-  Schedule? schedule;
-  Parser parser = Parser();
+  final Parser parser = Parser();
+
+  late Schedule? schedule;
 
   @override
   Widget build(BuildContext context) => WearOsClipper(
@@ -30,8 +30,8 @@ class _ScheduleScreenState extends State<ScheduleScreen> {
               return Center(child: CircularProgressIndicator());
             }
 
-            final schedule = Schedule.fromMap(snapshot.data!);
-            final lessons = schedule.days[currentWeekday] ?? [];
+            schedule = Schedule.fromMap(snapshot.data!);
+            final lessons = schedule?.lessonsForToday ?? [];
 
             if (lessons.isEmpty) {
               return Column(

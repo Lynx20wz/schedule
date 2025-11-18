@@ -15,8 +15,12 @@ enum Weekday {
 class Schedule {
   final int totalCount;
   final List<Lesson> lessons;
+  late final bool _isTodayWeekend;
+  final String currentWeekday = Weekday.fromIndex(DateTime.now().weekday).name;
 
-  Schedule({required this.totalCount, required this.lessons});
+  Schedule({required this.totalCount, required this.lessons}) {
+    _isTodayWeekend = ['saturday', 'sunday'].contains(currentWeekday);
+  }
 
   factory Schedule.fromMap(Map<String, dynamic> map) => Schedule(
     totalCount: map['total_count'] ?? 0,
@@ -36,5 +40,18 @@ class Schedule {
     }
 
     return result;
+  }
+
+  List<Lesson> get lessonsForToday {
+    final todayLessons = days[currentWeekday] ?? [];
+    if (todayLessons.isNotEmpty) {
+      return todayLessons;
+    }
+
+    if (_isTodayWeekend) {
+      return days['friday'] ?? [];
+    }
+
+    return [];
   }
 }

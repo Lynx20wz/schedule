@@ -5,5 +5,5 @@ class Marks {
   Marks(this.subjectName, this.mark);
 
   factory Marks.fromMap(String subjectName, Map<String, dynamic> map) =>
-      Marks(subjectName, map['mark']);
+      Marks(subjectName, int.parse(map['value']));
 }
