@@ -1,7 +1,7 @@
 import 'package:flutter/material.dart';
 import 'package:wear_os_plugin/wear_os_app.dart';
 
-import 'screens/schedule_screen.dart';
+import 'screens/screens.dart' show ScheduleScreen;
 
 void main() => runApp(const App());
 

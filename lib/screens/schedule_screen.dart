@@ -2,9 +2,9 @@ import 'package:flutter/material.dart';
 import 'package:wear_os_plugin/wear_os_clipper.dart';
 
 import '../api.dart';
-import '../classes/schedule.dart';
-import '../widgets/lesson_widget.dart';
-import '../widgets/watch_widget.dart';
+import '../classes/classes.dart';
+import '../widgets/widgets.dart';
+import 'empty_screen.dart';
 
 class ScheduleScreen extends StatefulWidget {
   const ScheduleScreen({super.key});

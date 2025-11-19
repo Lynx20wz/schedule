@@ -1,7 +1,7 @@
 import 'package:flutter/material.dart';
 import 'package:wear_os_plugin/wear_os_clipper.dart';
 
-import '../classes/lesson.dart';
+import '../classes/classes.dart';
 
 class LessonWidget extends StatelessWidget {
   final Lesson lesson;
