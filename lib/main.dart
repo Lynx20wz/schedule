@@ -1,6 +1,9 @@
+import 'dart:io';
+
 import 'package:flutter/material.dart';
 import 'package:wear_os_plugin/wear_os_app.dart';
 
+import 'screens/companion.dart' show PhoneAuthScreen;
 import 'screens/screens.dart' show ScheduleScreen;
 
 void main() => runApp(const App());
@@ -10,9 +13,14 @@ class App extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
-    return WearOsApp(
-      screenBuilder: (_) => ScheduleScreen(),
-      theme: ThemeData.dark(useMaterial3: true),
-    );
+    return Platform.isAndroid
+        ? MaterialApp(
+            theme: ThemeData.dark(useMaterial3: true),
+            home: const PhoneAuthScreen(),
+          )
+        : WearOsApp(
+            theme: ThemeData.dark(useMaterial3: true),
+            screenBuilder: (_) => const ScheduleScreen(),
+          );
   }
 }

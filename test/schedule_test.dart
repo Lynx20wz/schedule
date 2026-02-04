@@ -60,13 +60,13 @@ void main() {
       final schedule = Schedule.fromMap(json);
 
       expect(schedule.lessonsByDays, {
-        'monday': [schedule.lessons[0]],
-        'tuesday': [schedule.lessons[1]],
-        'wednesday': [],
-        'thursday': [],
-        'friday': [],
-        'saturday': [],
-        'sunday': [],
+        Weekday.monday: [schedule.lessons[0]],
+        Weekday.tuesday: [schedule.lessons[1]],
+        Weekday.wednesday: [],
+        Weekday.thursday: [],
+        Weekday.friday: [],
+        Weekday.saturday: [],
+        Weekday.sunday: [],
       });
     });
   });

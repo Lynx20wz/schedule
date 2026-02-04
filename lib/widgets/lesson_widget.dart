@@ -20,7 +20,10 @@ class LessonWidget extends StatelessWidget {
         subtitle: Text(lesson.room),
         contentPadding: const EdgeInsets.symmetric(horizontal: 8),
         trailing: lesson.marks.isNotEmpty
-            ? Text(lesson.marks[0].mark.toString())
+            ? Text(
+                lesson.marks[0].mark.toString(),
+                style: TextStyle(fontWeight: FontWeight.bold, fontSize: 16),
+              )
             : null,
       ),
     ),

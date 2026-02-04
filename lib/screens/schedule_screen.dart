@@ -16,53 +16,73 @@ class ScheduleScreen extends StatefulWidget {
 class _ScheduleScreenState extends State<ScheduleScreen> {
   final Parser parser = Parser();
 
-  late Schedule? schedule;
-
   @override
   Widget build(BuildContext context) => WearOsClipper(
-    child: Scaffold(
-      body: Padding(
-        padding: const EdgeInsets.only(right: 40, left: 40),
-        child: FutureBuilder(
+    child: PopScope(
+      canPop: false,
+      child: Scaffold(
+        body: FutureBuilder(
           future: parser.getSchedule(),
           builder: (context, snapshot) {
             if (snapshot.connectionState != ConnectionState.done) {
-              return Center(child: CircularProgressIndicator());
+              return const Center(child: CircularProgressIndicator());
+            } else if (!snapshot.hasData || snapshot.data!.isEmpty) {
+              return const EmptyScreen('An exception occurred');
             }
 
-            schedule = Schedule.fromMap(snapshot.data!);
-            final lessons = schedule?.lessonsForToday ?? [];
+            final schedule = Schedule.fromMap(snapshot.data!);
 
-            if (lessons.isEmpty) {
-              return Column(
-                children: [
-                  WatchWidget(),
-                  const Expanded(
-                    child: Center(
-                      child: Text(
-                        'No lessons today',
-                        style: TextStyle(
-                          fontSize: 18,
-                          fontWeight: FontWeight.bold,
-                        ),
-                      ),
-                    ),
-                  ),
-                ],
-              );
+            if (schedule.lessons.isEmpty) {
+              return const EmptyScreen('Schedule on week is empty');
             }
 
-            return ListView.separated(
-              padding: const EdgeInsets.only(bottom: 30),
-              itemCount: lessons.length + 1,
-              separatorBuilder: (context, index) => const SizedBox(height: 4),
-              itemBuilder: (context, index) => index == 0
-                  ? Center(child: WatchWidget())
-                  : LessonWidget(lessons[index - 1]),
+            return PageView.builder(
+              controller: PageController(
+                initialPage: DateTime.now().weekday - 1,
+              ),
+              itemCount: schedule.lessonsByDays.length,
+              itemBuilder: (context, index) {
+                final entry = schedule.lessonsByDays.entries.toList()[index];
+                return OneDaySchedule(entry.key, entry.value);
+              },
             );
           },
         ),
       ),
     ),
   );
+}
+
+class OneDaySchedule extends StatelessWidget {
+  final Weekday nameDay;
+  final List<Lesson> lessonsForDay;
+
+  const OneDaySchedule(this.nameDay, this.lessonsForDay, {super.key});
+
+  @override
+  Widget build(BuildContext context) => lessonsForDay.isEmpty
+      ? const EmptyScreen('No lessons today')
+      : SingleChildScrollView(
+          child: Column(
+            children: [
+              Center(child: WatchWidget()),
+              Text(
+                nameDay.getCapitalizedName(),
+                style: const TextStyle(
+                  fontWeight: FontWeight.bold,
+                  fontSize: 16,
+                ),
+              ),
+              Padding(
+                padding: const EdgeInsets.fromLTRB(30, 0, 30, 30),
+                child: Column(
+                  spacing: 4,
+                  children: [
+                    for (var lesson in lessonsForDay) LessonWidget(lesson),
+                  ],
+                ),
+              ),
+            ],
+          ),
+        );
 }

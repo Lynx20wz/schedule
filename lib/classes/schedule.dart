@@ -9,17 +9,22 @@ enum Weekday {
   saturday,
   sunday;
 
+  /// Examples:
+  /// 1 -> Weekday.monday
+  /// 2 -> Weekday.tuesday
   static Weekday fromIndex(int index) => values[index - 1];
+  String getCapitalizedName() => '${name[0].toUpperCase()}${name.substring(1)}';
 }
 
 class Schedule {
   final int totalCount;
   final List<Lesson> lessons;
   late final bool _isTodayWeekend;
-  final String currentWeekday = Weekday.fromIndex(DateTime.now().weekday).name;
+  final Weekday currentWeekday = Weekday.fromIndex(DateTime.now().weekday);
 
   Schedule({required this.totalCount, required this.lessons}) {
-    _isTodayWeekend = ['saturday', 'sunday'].contains(currentWeekday);
+    _isTodayWeekend =
+        currentWeekday == Weekday.saturday || currentWeekday == Weekday.sunday;
   }
 
   factory Schedule.fromMap(Map<String, dynamic> map) => Schedule(
@@ -29,13 +34,13 @@ class Schedule {
     ),
   );
 
-  Map<String, List<Lesson>> get days {
-    final Map<String, List<Lesson>> result = {
-      for (var weekday in Weekday.values) weekday.name: [],
+  Map<Weekday, List<Lesson>> get lessonsByDays {
+    final Map<Weekday, List<Lesson>> result = {
+      for (var weekday in Weekday.values) weekday: [],
     };
 
     for (var lesson in lessons) {
-      String weekday = Weekday.fromIndex(lesson.startAt.weekday).name;
+      Weekday weekday = Weekday.fromIndex(lesson.startAt.weekday);
       result[weekday]!.add(lesson);
     }
 
@@ -43,13 +48,11 @@ class Schedule {
   }
 
   List<Lesson> get lessonsForToday {
-    final todayLessons = days[currentWeekday] ?? [];
+    final todayLessons = lessonsByDays[currentWeekday] ?? [];
     if (todayLessons.isNotEmpty) {
       return todayLessons;
-    }
-
-    if (_isTodayWeekend) {
-      return days['friday'] ?? [];
+    } else if (_isTodayWeekend) {
+      return lessonsByDays[Weekday.friday] ?? [];
     }
 
     return [];
