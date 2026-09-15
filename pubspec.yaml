@@ -9,12 +9,13 @@ flutter:
   uses-material-design: true
 
 environment:
-  flutter: ^3.38.5
-  sdk: ^3.10.0
+  flutter: ^3.47.4
+  sdk: ^3.13.3
 
 workspace:
-  - packages/schedule_watch_app
-  - packages/schedule_phone_app
+  - packages/schedule_shared
+  - packages/schedule_phone
+  - packages/schedule_watch
 
 dependencies:
   flutter:
@@ -23,4 +24,5 @@ dependencies:
   shared_preferences: ^2.5.4
 
 dev_dependencies:
+  import_sorter: ^4.6.0
   lints: ^6.0.0

@@ -1,0 +1,3 @@
+-keep class com.google.android.gms.wearable.** { *; }
+-keep class com.google.android.gms.common.** { *; }
+-keep class com.google.android.gms.wearable.DataMap** { *; }
