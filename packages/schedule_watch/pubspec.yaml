@@ -1,6 +1,6 @@
 name: schedule_watch
 description: ...
-version: 0.0.2
+version: 0.0.3
 publish_to: none
 
 resolution: workspace
@@ -23,6 +23,7 @@ dependencies:
   shared_preferences: ^2.5.5
   watch_connectivity: ^0.2.10
   riverpod: ^3.2.1
+  riverpod_devtools: ^0.4.4
   flutter_riverpod: ^3.3.1
   workmanager: ^0.10.10
 
@@ -32,4 +33,3 @@ dev_dependencies:
 
   flutter_lints: ^6.0.0
   test: ^1.26.2
-  riverpod_devtools: ^0.4.4
