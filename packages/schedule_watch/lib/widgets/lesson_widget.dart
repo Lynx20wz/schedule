@@ -13,14 +13,16 @@ class LessonWidget extends StatelessWidget {
     return Container(
       decoration: BoxDecoration(
         borderRadius: .circular(8),
-        color: Theme.of(context).colorScheme.secondaryContainer,
+        color: lesson.isCurrent
+            ? Colors.blueAccent
+            : Theme.of(context).colorScheme.secondaryContainer,
       ),
       child: ListTile(
         title: Text(lesson.name, overflow: .ellipsis),
         subtitle: Text(lesson.room),
         contentPadding: const .symmetric(horizontal: 8),
         trailing: lesson.marks.isNotEmpty
-            ? Text(lesson.marks[0].mark.toString(), style: textStyle)
+            ? Text(lesson.marks.map((m) => m.value).join('|'), style: textStyle)
             : Text(lesson.absenceReason.title, style: textStyle),
       ),
     );
