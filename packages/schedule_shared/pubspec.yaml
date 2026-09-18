@@ -1,6 +1,6 @@
 name: schedule_shared
 description: A sample command-line application.
-version: 0.0.2
+version: 0.0.3
 
 resolution: workspace
 

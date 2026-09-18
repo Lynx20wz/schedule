@@ -12,8 +12,8 @@ class MySchoolApi {
   static DateTime _getMondayDate(DateTime date) =>
       date.subtract(Duration(days: date.weekday - 1));
 
-  static String _formatDay({DateTime? date}) =>
-      DateFormat('yyyy-MM-dd').format(date ?? _mondayDay);
+  static String _formatDay(DateTime date) =>
+      DateFormat('yyyy-MM-dd').format(date);
 
   static const String _baseUrl = 'https://authedu.mosreg.ru/api';
   static const String _studentId = 'dd0e6044-138c-4e52-89ab-f2a0da9c9b7c';
@@ -37,8 +37,8 @@ class MySchoolApi {
   Future<Schedule?> getSchedule() async {
     Map<String, dynamic> params = {
       'person_ids': _studentId,
-      'begin_date': _formatDay(),
-      'end_date': _formatDay(date: _mondayDay.add(const Duration(days: 5))),
+      'begin_date': _formatDay(_mondayDay),
+      'end_date': _formatDay(_mondayDay.add(const Duration(days: 5))),
       'expand': 'marks,absence_reason_id',
     };
     try {
