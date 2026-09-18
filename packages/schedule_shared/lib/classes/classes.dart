@@ -1,3 +1,3 @@
 export 'lesson.dart';
-export 'marks.dart';
+export 'mark.dart';
 export 'schedule.dart';
