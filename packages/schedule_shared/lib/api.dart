@@ -2,6 +2,7 @@ import 'dart:developer' show log;
 
 import 'package:dio/dio.dart';
 import 'package:intl/intl.dart' show DateFormat;
+import 'package:schedule_shared/exceptions.dart';
 import 'package:schedule_shared/schedule_shared.dart';
 
 final Dio dio = Dio();
@@ -34,29 +35,41 @@ class MySchoolApi {
         '"Chromium";v="128", "Not;A=Brand";v="24", "Google Chrome";v="128"',
   };
 
-  Future<Schedule?> getSchedule() async {
+  void _logAndThrow(String errorMsg) {
+    log(errorMsg, name: 'API request (getSchedule)');
+    throw Exception(errorMsg);
+  }
+
+  Future<Schedule> getSchedule() async {
     Map<String, dynamic> params = {
       'person_ids': _studentId,
       'begin_date': _formatDay(_mondayDay),
       'end_date': _formatDay(_mondayDay.add(const Duration(days: 5))),
       'expand': 'marks,absence_reason_id',
     };
-    try {
-      final response = await dio.get(
-        '$_baseUrl/eventcalendar/v1/api/events',
-        queryParameters: params,
-        options: Options(headers: _headers),
-      );
 
-      log(
-        'Schedule:\nfrom ${params['begin_date']}\nto ${params['end_date']}\n$response',
-        name: 'API request (getSchedule)',
-      );
+    final response = await dio.get(
+      '$_baseUrl/eventcalendar/v1/api/events',
+      queryParameters: params,
+      options: Options(headers: _headers),
+    );
 
-      return Schedule.fromMap(response.data as Map<String, dynamic>);
-    } on DioException catch (e) {
-      log('Failed to get schedule: $e', name: 'API request (getSchedule)');
-      return null;
+    switch (response.statusCode!) {
+      case 200:
+        break;
+      case 403:
+        throw TokenInvalidException();
+      case >= 500:
+        _logAndThrow('Server error: ${response.statusCode}');
+      default:
+        _logAndThrow('Unexpected status code: ${response.statusCode}');
     }
+
+    log(
+      'Schedule:\nfrom ${params['begin_date']}\nto ${params['end_date']}\n$response',
+      name: 'API request (getSchedule)',
+    );
+
+    return Schedule.fromMap(response.data as Map<String, dynamic>);
   }
 }

@@ -13,7 +13,7 @@ enum Weekday {
   /// 1 -> Weekday.monday
   /// 2 -> Weekday.tuesday
   static Weekday fromIndex(int index) => values[index - 1];
-  String getCapitalizedName() => '${name[0].toUpperCase()}${name.substring(1)}';
+  String get capitalizedTitle => '${name[0].toUpperCase()}${name.substring(1)}';
 }
 
 class Schedule({
