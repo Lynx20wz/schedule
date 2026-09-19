@@ -1,0 +1,11 @@
+[
+  {
+    "label": "debug",
+    "adapter": "Dart",
+    "type": "flutter",
+    "request": "launch",
+    "program": "lib/main.dart",
+    "useFvm": true,
+    "cwd": "$ZED_WORKTREE_ROOT/packages/schedule_phone"
+  }
+]
