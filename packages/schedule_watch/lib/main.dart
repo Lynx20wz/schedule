@@ -22,7 +22,9 @@ void main() async {
       observers: [RiverpodDevToolsObserver()],
       child: MaterialApp(
         title: 'Schedule',
-        theme: ThemeData.dark(useMaterial3: true),
+        theme: .from(
+          colorScheme: .fromSeed(seedColor: Colors.blue, brightness: .dark),
+        ),
         home: const ScheduleScreen(),
       ),
     ),
@@ -38,7 +40,7 @@ Future<void> setupWorkmanager() async {
     "unique_task_id",
     "updateLessonTask",
     frequency: const Duration(minutes: 15),
-    constraints: Constraints(networkType: NetworkType.notRequired),
+    constraints: Constraints(networkType: .notRequired),
   );
 }
 
