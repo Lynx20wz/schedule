@@ -21,6 +21,8 @@ class Lesson({
   required final DateTime startAt,
   required final DateTime finishAt,
 }) {
+  this : assert(finishAt.isAfter(startAt));
+
   bool get isCurrent =>
       DateTime.now().isAfter(startAt) && DateTime.now().isBefore(finishAt);
 
