@@ -94,6 +94,6 @@ void main() {
 
     final container = tester.widget<Container>(find.byType(Container));
     final decoration = container.decoration as BoxDecoration;
-    expect(decoration.color, Colors.blueAccent);
+    expect(decoration.color, Colors.indigo.shade300);
   });
 }
