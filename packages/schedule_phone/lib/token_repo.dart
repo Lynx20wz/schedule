@@ -1,3 +1,4 @@
+import 'package:riverpod/riverpod.dart';
 import 'package:shared_preferences/shared_preferences.dart';
 
 final class Tokens({
@@ -48,3 +49,7 @@ class TokensRepository(final SharedPreferences _prefs) {
     refreshToken = null;
   }
 }
+
+final tokensRepoProvider = FutureProvider<TokensRepository>(
+  (ref) async => TokensRepository(await SharedPreferences.getInstance()),
+);
