@@ -1,0 +1,20 @@
+name: Get schedule
+url: ${BASE_URL}/eventcalendar/v1/api/events
+auth:
+  type: bearer_token
+  bearer_token:
+    token: ${AUTH}
+headers:
+  - name: X-Mes-Role
+    value: student
+  - name: X-mes-subsystem
+    value: familyweb
+params:
+  - name: person_ids
+    value: dd0e6044-138c-4e52-89ab-f2a0da9c9b7c
+  - name: begin_date
+    value: "2026-10-12"
+  - name: end_date
+    value: "2026-10-15"
+  - name: expand
+    value: marks

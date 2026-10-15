@@ -1,0 +1,16 @@
+name: Get marks
+url: ${BASE_URL}/family/web/v1/marks
+auth:
+  type: bearer_token
+  bearer_token:
+    token: ${AUTH}
+headers:
+  - name: X-mes-subsystem
+    value: familyweb
+params:
+  - name: student_id
+    value: "1530640"
+  - name: from
+    value: "2026-10-12"
+  - name: to
+    value: "2026-10-18"

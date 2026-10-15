@@ -1,0 +1,21 @@
+name: Get schedule item
+url: https://authedu.mosreg.ru/api/family/web/v1/lesson_schedule_items/:id
+auth:
+  type: bearer_token
+  bearer_token:
+    token: ${AUTH}
+headers:
+  - name: X-Mes-Role
+    value: student
+  - name: X-mes-subsystem
+    value: familyweb
+params:
+  - name: student_id
+    value: "1530640"
+  - name: type
+    value: OO
+  - name: person_id
+    value: dd0e6044-138c-4e52-89ab-f2a0da9c9b7c
+path_params:
+  - name: id
+    value: "197495316"
