@@ -7,6 +7,8 @@ import 'package:flutter/material.dart';
 import 'package:flutter/services.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:http/http.dart' as http;
+import 'package:riverpod_devtools/riverpod_devtools.dart'
+    show RiverpodDevToolsObserver;
 import 'package:schedule_phone/api.dart';
 import 'package:schedule_phone/token_repo.dart';
 import 'package:url_launcher/url_launcher_string.dart';
@@ -17,6 +19,7 @@ const minBtnSize = Size(double.infinity, 60);
 
 void main() => runApp(
   ProviderScope(
+    observers: [RiverpodDevToolsObserver()],
     child: MaterialApp(
       title: 'Schedule',
       theme: .from(

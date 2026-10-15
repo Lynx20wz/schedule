@@ -13,31 +13,17 @@ final class Tokens({
 }
 
 class TokensRepository(final SharedPreferences _prefs) {
-  String? _token;
-  String? _refreshToken;
+  String? get token => _prefs.getString('token');
+  String? get refreshToken => _prefs.getString('refresh_token');
 
-  this
-    : _token = _prefs.getString('token'),
-      _refreshToken = _prefs.getString('refresh_token');
+  Tokens get tokens => Tokens(token: token!, refreshToken: refreshToken);
 
-  String? get token => _token;
-  String? get refreshToken => _refreshToken;
+  set token(String? token) =>
+      token != null ? _prefs.setString('token', token) : _prefs.remove('token');
 
-  Tokens get tokens => Tokens(token: token!, refreshToken: refreshToken!);
-
-  set token(String? token) {
-    token != null ? _prefs.setString('token', token) : _prefs.remove('token');
-
-    _token = token;
-  }
-
-  set refreshToken(String? refreshToken) {
-    refreshToken != null
-        ? _prefs.setString('refresh_token', refreshToken)
-        : _prefs.remove('refresh_token');
-
-    _refreshToken = refreshToken;
-  }
+  set refreshToken(String? refreshToken) => refreshToken != null
+      ? _prefs.setString('refresh_token', refreshToken)
+      : _prefs.remove('refresh_token');
 
   void setTokens(Tokens tokens) {
     token = tokens.token;
