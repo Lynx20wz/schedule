@@ -125,62 +125,63 @@ class _PhoneAuthScreenState extends ConsumerState<PhoneAuthScreen> {
       );
 
   @override
-  Widget build(BuildContext context) => FutureBuilder(
-    future: _repo,
-    builder: (context, snapshot) {
-      if (!snapshot.hasData) return const CircularProgressIndicator();
-      final repo = snapshot.data!;
-      final isLogged = repo.token != null;
+  Widget build(BuildContext context) => ref
+      .watch(tokensRepoProvider)
+      .when(
+        error: (e, _) => Text('Error: $e'),
+        loading: () => const CircularProgressIndicator(),
+        data: (repo) {
+          final isLogged = repo.token != null;
 
-      return Scaffold(
-        appBar: AppBar(title: const Text('Авторизация часов')),
-        body: Padding(
-          padding: const EdgeInsets.all(20.0),
-          child: Column(
-            spacing: 16,
-            children: [
-              isLogged ? _buildTokenCard(repo.token!) : _buildLoginButton(),
-              if (!isLogged) ...[
-                Row(
-                  children: [
-                    const Expanded(child: Divider()),
-                    Padding(
-                      padding: const .symmetric(horizontal: 16),
-                      child: Text('OR', style: TextStyle(fontSize: 14)),
+          return Scaffold(
+            appBar: AppBar(title: const Text('Авторизация часов')),
+            body: Padding(
+              padding: const EdgeInsets.all(20.0),
+              child: Column(
+                spacing: 16,
+                children: [
+                  isLogged ? _buildTokenCard(repo.token!) : _buildLoginButton(),
+                  if (!isLogged) ...[
+                    Row(
+                      children: [
+                        const Expanded(child: Divider()),
+                        Padding(
+                          padding: const .symmetric(horizontal: 16),
+                          child: Text('OR', style: TextStyle(fontSize: 14)),
+                        ),
+                        const Expanded(child: Divider()),
+                      ],
                     ),
-                    const Expanded(child: Divider()),
+                    _buildGetTokenButton(),
+                    TextField(
+                      controller: _tokenTextController,
+                      decoration: const InputDecoration(
+                        labelText: 'Токен авторизации',
+                        hintText: 'Введите токен начинающийся с eyJ...',
+                        border: OutlineInputBorder(),
+                      ),
+                      maxLines: 3,
+                    ),
+                    ValueListenableBuilder(
+                      valueListenable: _tokenTextController,
+                      builder: (_, value, _) => ElevatedButton(
+                        onPressed: value.text.isNotEmpty
+                            ? _setTokenFromField
+                            : null,
+                        style: ElevatedButton.styleFrom(
+                          animationDuration: .zero,
+                          minimumSize: minBtnSize,
+                        ),
+                        child: const Text('Ввести токен'),
+                      ),
+                    ),
                   ],
-                ),
-                _buildGetTokenButton(),
-                TextField(
-                  controller: _tokenTextController,
-                  decoration: const InputDecoration(
-                    labelText: 'Токен авторизации',
-                    hintText: 'Введите токен начинающийся с eyJ...',
-                    border: OutlineInputBorder(),
-                  ),
-                  maxLines: 3,
-                ),
-                ValueListenableBuilder(
-                  valueListenable: _tokenTextController,
-                  builder: (_, value, _) => ElevatedButton(
-                    onPressed: value.text.isNotEmpty
-                        ? _setTokenFromField
-                        : null,
-                    style: ElevatedButton.styleFrom(
-                      animationDuration: .zero,
-                      minimumSize: minBtnSize,
-                    ),
-                    child: const Text('Ввести токен'),
-                  ),
-                ),
-              ],
-            ],
-          ),
-        ),
+                ],
+              ),
+            ),
+          );
+        },
       );
-    },
-  );
 
   Widget _buildLoginButton() => FilledButton.icon(
     icon: const Icon(Icons.login),
@@ -194,11 +195,11 @@ class _PhoneAuthScreenState extends ConsumerState<PhoneAuthScreen> {
     return OutlinedButton.icon(
       icon: const Icon(Icons.key),
       label: const Text('Получите токен'),
-      onPressed: null, // () async => await launchUrlString('https://authedu.mosreg.ru/v2/token/refresh'),
+      onPressed: null, // () async => await launchUrlString('https://authedu.mosreg.ru/50'),
       style: OutlinedButton.styleFrom(
         minimumSize: minBtnSize,
         foregroundColor: primaryColor,
-        side: BorderSide(color: primaryColor, width: 1.5),
+        // side: BorderSide(width: 1.5, color: primaryColor),
       ),
     );
   }
@@ -227,7 +228,7 @@ class _PhoneAuthScreenState extends ConsumerState<PhoneAuthScreen> {
                 padding: EdgeInsets.zero,
               ),
               IconButton(
-                icon: const Icon(Icons.refresh, size: 16),
+                icon: const Icon(Icons.close, size: 16),
                 onPressed: _clearToken,
                 padding: EdgeInsets.zero,
               ),
