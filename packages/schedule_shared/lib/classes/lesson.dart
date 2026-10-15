@@ -14,6 +14,7 @@ enum const AbsenceReason(final int? id, final String title) {
 }
 
 class Lesson({
+  required final int id,
   required final String name,
   required final String room,
   required final List<Mark> marks,
@@ -27,6 +28,7 @@ class Lesson({
       DateTime.now().isAfter(startAt) && DateTime.now().isBefore(finishAt);
 
   Lesson copyWith({
+    int? id,
     String? name,
     String? room,
     List<Mark>? marks,
@@ -34,6 +36,7 @@ class Lesson({
     DateTime? startAt,
     DateTime? finishAt,
   }) => Lesson(
+    id: id ?? this.id,
     name: name ?? this.name,
     room: room ?? this.room,
     marks: marks ?? this.marks,
@@ -44,6 +47,7 @@ class Lesson({
 
   new fromMap(Map<String, dynamic> map)
     : this(
+        id: map['id'],
         name: map['subject_name'],
         room: map['room_number'],
         marks: List<Mark>.from(

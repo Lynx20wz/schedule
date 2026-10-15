@@ -72,4 +72,40 @@ class MySchoolApi {
 
     return Schedule.fromMap(response.data as Map<String, dynamic>);
   }
+
+  Future<List<DetailedMark>> getMarks() async {
+    Map<String, dynamic> params = {
+      'student_id': _studentId,
+      'from': _formatDay(_mondayDay),
+      'to': _formatDay(_mondayDay.add(const Duration(days: 5))),
+    };
+
+    final response = await dio.get(
+      '$_baseUrl/family/web/v1/marks',
+      queryParameters: params,
+      options: Options(headers: _headers),
+    );
+
+    switch (response.statusCode!) {
+      case 200:
+        break;
+      case 403:
+        throw TokenInvalidException();
+      case >= 500:
+        _logAndThrow('Server error: ${response.statusCode}');
+      default:
+        _logAndThrow('Unexpected status code: ${response.statusCode}');
+    }
+
+    log(
+      'Marks:\nfrom ${params['begin_date']}\nto ${params['end_date']}\n$response',
+      name: 'API request (getMarks)',
+    );
+
+    final data = response.data as Map<String, dynamic>;
+
+    return List<DetailedMark>.from(
+      data['response']?.map((item) => DetailedMark.fromMap(item)) ?? [],
+    );
+  }
 }
