@@ -89,8 +89,14 @@ class _OneDayScheduleState extends State<OneDaySchedule> {
   }
 
   void _scrollToCurrentLesson() {
-    final context = _currentLessonKey.currentContext;
-    if (context != null) Scrollable.ensureVisible(context, alignment: 0.1);
+    final lessonContext = _currentLessonKey.currentContext;
+    if (lessonContext == null) return;
+
+    final renderObject = lessonContext.findRenderObject();
+    if (renderObject == null) return;
+
+    final scrollable = Scrollable.maybeOf(lessonContext, axis: Axis.vertical);
+    scrollable?.position.ensureVisible(renderObject, alignment: 0.1);
   }
 
   @override
