@@ -5,7 +5,12 @@ import 'package:intl/intl.dart' show DateFormat;
 import 'package:schedule_shared/exceptions.dart';
 import 'package:schedule_shared/schedule_shared.dart';
 
-final Dio dio = Dio();
+final Dio dio = Dio(
+  BaseOptions(
+    connectTimeout: Duration(seconds: 10),
+    receiveTimeout: Duration(seconds: 20),
+  ),
+);
 
 class MySchoolApi {
   static final DateTime _mondayDay = _getMondayDate(DateTime.now());
@@ -58,7 +63,7 @@ class MySchoolApi {
       case 200:
         break;
       case 403:
-        throw TokenInvalidException();
+        throw const TokenInvalidException();
       case >= 500:
         _logAndThrow('Server error: ${response.statusCode}');
       default:
@@ -90,7 +95,7 @@ class MySchoolApi {
       case 200:
         break;
       case 403:
-        throw TokenInvalidException();
+        throw const TokenInvalidException();
       case >= 500:
         _logAndThrow('Server error: ${response.statusCode}');
       default:

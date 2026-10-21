@@ -1,3 +1,4 @@
+import 'dart:async' show StreamSubscription;
 import 'dart:developer' show log;
 
 import 'package:flutter/material.dart';
@@ -15,32 +16,49 @@ class TokenScreen extends ConsumerStatefulWidget {
 
 class _TokenScreenState extends ConsumerState<TokenScreen> {
   final _watchConnectivity = WatchConnectivity();
+  StreamSubscription<Map<String, dynamic>>? _contextSubscription;
 
   @override
   void initState() {
     super.initState();
-    initToken();
+    _contextSubscription = _watchConnectivity.contextStream.listen(_onContext);
+    _readInitialContext();
   }
 
-  void initToken() async {
-    final receivedContext =
-        (await _watchConnectivity.receivedApplicationContexts)[0];
+  @override
+  void dispose() {
+    _contextSubscription?.cancel();
+    super.dispose();
+  }
 
-    log(receivedContext.toString(), name: '_TokenScreenState.initToken');
+  Future<void> _readInitialContext() async {
+    try {
+      final contexts = await _watchConnectivity.receivedApplicationContexts;
+      log(
+        contexts.toString(),
+        name: '_TokenScreenState.receivedApplicationContexts',
+      );
 
-    if (receivedContext case {'token': final String token}) {
-      await _saveToken(token);
-      return;
+      if (contexts.isNotEmpty) _onContext(contexts.first);
+    } catch (e, st) {
+      log(
+        'Failed to read application contexts: $e',
+        name: '_TokenScreenState._readInitialContext',
+        stackTrace: st,
+        error: e,
+      );
     }
-
-    _watchConnectivity.contextStream.listen((context) {
-      log(context.toString(), name: '_TokenScreenState.initToken');
-      if (context case {'token': final token}) _saveToken(token);
-    });
   }
 
-  Future<void> _saveToken(String token) async =>
+  void _onContext(Map<String, dynamic> context) {
+    log(context.toString(), name: '_TokenScreenState._onContext');
+    if (!mounted) return;
+
+    if (context case {'token': final String token}
+        when ref.read(tokenProvider) != token) {
       ref.read(tokenProvider.notifier).setToken(token);
+    }
+  }
 
   @override
   Widget build(BuildContext context) => EmptyScreen('Please provide a token');

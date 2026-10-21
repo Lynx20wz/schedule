@@ -1,6 +1,5 @@
 import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart' show ProviderScope;
-import 'package:riverpod_devtools/riverpod_devtools.dart';
 import 'package:shared_preferences/shared_preferences.dart';
 import 'package:workmanager/workmanager.dart';
 
@@ -19,7 +18,6 @@ void main() async {
 
   runApp(
     ProviderScope(
-      observers: [RiverpodDevToolsObserver()],
       child: MaterialApp(
         title: 'Schedule',
         theme: .from(

@@ -17,9 +17,24 @@ class ScheduleScreen extends ConsumerWidget {
         .when(
           loading: () => const Center(child: CircularProgressIndicator()),
           error: (e, st) {
-            if (e is TokenInvalidException) return TokenScreen();
+            if (e is TokenException) return const TokenScreen();
             log(e.toString(), stackTrace: st);
-            return Center(child: Text(e.toString()));
+            return Center(
+              child: Padding(
+                padding: const EdgeInsets.all(8),
+                child: Column(
+                  mainAxisSize: .min,
+                  children: [
+                    Text(e.toString(), textAlign: .center),
+                    const SizedBox(height: 8),
+                    FilledButton(
+                      onPressed: () => ref.invalidate(scheduleProvider),
+                      child: const Text('Повторить'),
+                    ),
+                  ],
+                ),
+              ),
+            );
           },
           data: (schedule) => Column(
             children: [
@@ -97,6 +112,7 @@ class _OneDayScheduleState extends State<OneDaySchedule> {
                   itemCount: widget.lessonsForDay.length,
                   itemBuilder: (_, index) {
                     final lesson = widget.lessonsForDay[index];
+
                     return LessonWidget(
                       lesson,
                       key: lesson.isCurrent ? _currentLessonKey : null,
