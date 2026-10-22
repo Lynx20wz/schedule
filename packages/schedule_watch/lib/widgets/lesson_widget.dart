@@ -5,8 +5,16 @@ import 'package:schedule_shared/schedule_shared.dart' show Lesson;
 
 class LessonWidget extends StatefulWidget {
   final Lesson lesson;
+  final Duration offset;
+  // For mock
+  final DateTime Function() now;
 
-  const LessonWidget(this.lesson, {super.key});
+  const LessonWidget(
+    this.lesson, {
+    super.key,
+    this.offset = Duration.zero,
+    this.now = DateTime.now,
+  });
 
   @override
   State<LessonWidget> createState() => _LessonWidgetState();
@@ -16,19 +24,25 @@ class _LessonWidgetState extends State<LessonWidget> {
   Timer? _timer;
 
   void _scheduleUpdate() {
-    final now = DateTime.now();
+    _timer?.cancel();
+
+    final now = widget.now();
     final lesson = widget.lesson;
+    final startAt = lesson.startAt.add(widget.offset);
+    final finishAt = lesson.finishAt.add(widget.offset);
+
     Duration? delay;
 
-    // Calculate the next update delay
-    if (now.isBefore(lesson.startAt)) {
-      delay = lesson.startAt.difference(now);
-    } else if (now.isBefore(lesson.finishAt)) {
-      delay = lesson.finishAt.difference(now);
+    // Calculate the next update delay. Add a small offset so the widget is
+    // rebuilt after the boundary, not exactly at it.
+    if (now.isBefore(startAt)) {
+      delay = startAt.difference(now);
+    } else if (now.isBefore(finishAt)) {
+      delay = finishAt.difference(now);
     }
 
-    if (delay != null && delay > Duration.zero) {
-      _timer = Timer(delay, () {
+    if (delay != null) {
+      _timer = Timer(delay + const Duration(seconds: 1), () {
         if (mounted) {
           setState(() {});
           _scheduleUpdate();
@@ -44,6 +58,16 @@ class _LessonWidgetState extends State<LessonWidget> {
   }
 
   @override
+  void didUpdateWidget(LessonWidget oldWidget) {
+    super.didUpdateWidget(oldWidget);
+
+    if (oldWidget.lesson != widget.lesson ||
+        oldWidget.offset != widget.offset) {
+      _scheduleUpdate();
+    }
+  }
+
+  @override
   void dispose() {
     _timer?.cancel();
     super.dispose();
@@ -53,7 +77,7 @@ class _LessonWidgetState extends State<LessonWidget> {
   Widget build(BuildContext context) => Container(
     decoration: BoxDecoration(
       borderRadius: .circular(8),
-      color: widget.lesson.isCurrent
+      color: widget.lesson.isCurrentAt(widget.now(), offset: widget.offset)
           ? Colors.indigo.shade300
           : Theme.of(context).colorScheme.secondaryContainer,
     ),

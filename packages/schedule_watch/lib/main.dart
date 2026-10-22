@@ -4,6 +4,7 @@ import 'package:shared_preferences/shared_preferences.dart';
 import 'package:workmanager/workmanager.dart';
 
 import 'screens/screens.dart' show ScheduleScreen;
+import 'watch_sync.dart';
 
 @pragma('vm:entry-point')
 void callbackDispatcher() {
@@ -18,12 +19,14 @@ void main() async {
 
   runApp(
     ProviderScope(
-      child: MaterialApp(
-        title: 'Schedule',
-        theme: .from(
-          colorScheme: .fromSeed(seedColor: Colors.blue, brightness: .dark),
+      child: WatchSync(
+        child: MaterialApp(
+          title: 'Schedule',
+          theme: .from(
+            colorScheme: .fromSeed(seedColor: Colors.blue, brightness: .dark),
+          ),
+          home: const ScheduleScreen(),
         ),
-        home: const ScheduleScreen(),
       ),
     ),
   );
