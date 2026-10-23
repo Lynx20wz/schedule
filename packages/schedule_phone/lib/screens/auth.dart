@@ -1,18 +1,13 @@
 import 'dart:async';
-import 'dart:convert' show jsonDecode;
 import 'dart:developer' show log;
 
-import 'package:app_links/app_links.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter/services.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
-import 'package:http/http.dart' as http;
-import 'package:schedule_phone/api.dart';
+import 'package:schedule_phone/auth_flow.dart';
 import 'package:schedule_phone/lesson_offset.dart';
 import 'package:schedule_phone/token_repo.dart';
 import 'package:schedule_phone/widgets/lesson_offset_card.dart';
-import 'package:url_launcher/url_launcher_string.dart';
-import 'package:uuid/v4.dart';
 import 'package:watch_connectivity/watch_connectivity.dart';
 
 const minBtnSize = Size(double.infinity, 60);
@@ -27,27 +22,14 @@ class AuthScreen extends ConsumerStatefulWidget {
 class _AuthScreenState extends ConsumerState<AuthScreen> {
   final WatchConnectivity _watchConnectivity = WatchConnectivity();
   final TextEditingController _tokenTextController = TextEditingController();
-  late String _oauthState;
-  StreamSubscription<Uri>? _linkSubscription;
   Timer? _offsetSyncTimer;
-
-  // System
-  @override
-  void initState() {
-    super.initState();
-    _initialize();
-  }
 
   @override
   void dispose() {
     _tokenTextController.dispose();
-    _linkSubscription?.cancel();
     _offsetSyncTimer?.cancel();
     super.dispose();
   }
-
-  Future<void> _initialize() async =>
-      _linkSubscription = AppLinks().uriLinkStream.listen(_openAppLink);
 
   Future<void> _sendWatchContext() async {
     final offset = ref.read(lessonOffsetProvider).value ?? .zero;
@@ -68,7 +50,6 @@ class _AuthScreenState extends ConsumerState<AuthScreen> {
     }
   }
 
-  // Token
   Future<void> _setToken(Tokens tokens) async {
     await ref.read(tokensProvider.notifier).setTokens(tokens);
     _showSnackBar('Токен сохранен');
@@ -88,32 +69,25 @@ class _AuthScreenState extends ConsumerState<AuthScreen> {
     await _setToken(Tokens(access: text, refresh: null));
   }
 
-  Future<void> _clearToken() async {
-    await ref.read(tokensProvider.notifier).clear();
-    _showSnackBar('Токен сброшен');
-  }
+  Future<void> _clearToken() async =>
+      await ref.read(tokensProvider.notifier).clear();
 
-  // URL
   void _openLoginUrl() async {
-    _oauthState = UuidV4().generate();
-    await launchUrlString(Api.loginUrl(_oauthState).toString());
-  }
+    try {
+      await ref.read(authFlowProvider).login();
+    } catch (e, st) {
+      log(
+        'Failed to open login URL: $e',
+        name: '_AuthScreenState._openLoginUrl',
+        stackTrace: st,
+        error: e,
+      );
 
-  void _openAppLink(Uri uri) async {
-    final queryParams = uri.queryParameters;
-    switch (uri.host) {
-      case 'tokenredirect':
-        if (queryParams case {'code': final code}) {
-          final response = await http.get(
-            Api.tokenExchangeUrl(code, _oauthState),
-          );
-          final Map<String, dynamic> json = jsonDecode(response.body);
-          log(json.toString());
-          await _setToken(Tokens.fromMap(json));
-        }
-        break;
-      default:
-        log('Unknown host: ${uri.host}');
+      if (!mounted) return;
+      _showSnackBar(
+        'Не удалось открыть браузер',
+        color: Theme.of(context).colorScheme.error,
+      );
     }
   }
 
@@ -189,7 +163,7 @@ class _AuthScreenState extends ConsumerState<AuthScreen> {
     ValueListenableBuilder(
       valueListenable: _tokenTextController,
       builder: (_, value, _) => ElevatedButton(
-        onPressed: value.text.isNotEmpty ? _setTokenFromField : null,
+        onPressed: Tokens.isValid(value.text) ? _setTokenFromField : null,
         style: ElevatedButton.styleFrom(
           animationDuration: .zero,
           minimumSize: minBtnSize,
