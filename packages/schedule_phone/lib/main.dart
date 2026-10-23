@@ -9,7 +9,7 @@ import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:http/http.dart' as http;
 import 'package:riverpod_devtools/riverpod_devtools.dart'
     show RiverpodDevToolsObserver;
-import 'package:schedule_phone/widgets/widgets.dart';
+import 'package:schedule_phone/widgets/lesson_offset_card.dart';
 import 'package:url_launcher/url_launcher_string.dart';
 import 'package:uuid/v4.dart';
 import 'package:watch_connectivity/watch_connectivity.dart';
@@ -163,62 +163,60 @@ class _PhoneAuthScreenState extends ConsumerState<PhoneAuthScreen> {
         .when(
           error: (e, _) => Text('Error: $e'),
           loading: () => const CircularProgressIndicator(),
-          data: (repo) {
-            final isLogged = repo.token != null;
-
-            return Scaffold(
-              appBar: AppBar(title: const Text('Авторизация часов')),
-              body: SingleChildScrollView(
-                padding: const EdgeInsets.all(20.0),
-                child: Column(
-                  spacing: 16,
-                  children: [
-                    isLogged
-                        ? _buildTokenCard(repo.token!)
-                        : _buildLoginButton(),
-                    if (!isLogged) ...[
-                      Row(
-                        children: [
-                          const Expanded(child: Divider()),
-                          Padding(
-                            padding: const .symmetric(horizontal: 16),
-                            child: Text('OR', style: TextStyle(fontSize: 14)),
-                          ),
-                          const Expanded(child: Divider()),
-                        ],
-                      ),
-                      _buildGetTokenButton(),
-                      TextField(
-                        controller: _tokenTextController,
-                        decoration: const InputDecoration(
-                          labelText: 'Токен авторизации',
-                          hintText: 'Введите токен начинающийся с eyJ...',
-                          border: OutlineInputBorder(),
-                        ),
-                        maxLines: 3,
-                      ),
-                      ValueListenableBuilder(
-                        valueListenable: _tokenTextController,
-                        builder: (_, value, _) => ElevatedButton(
-                          onPressed: value.text.isNotEmpty
-                              ? _setTokenFromField
-                              : null,
-                          style: ElevatedButton.styleFrom(
-                            animationDuration: .zero,
-                            minimumSize: minBtnSize,
-                          ),
-                          child: const Text('Ввести токен'),
-                        ),
-                      ),
-                    ],
-                    const LessonOffsetCard(),
-                  ],
-                ),
+          data: (repo) => Scaffold(
+            appBar: AppBar(title: const Text('Авторизация часов')),
+            body: SingleChildScrollView(
+              padding: const EdgeInsets.all(20.0),
+              child: Column(
+                spacing: 16,
+                children: repo.token != null
+                    ? _buildLogged(repo.token!)
+                    : _buildNotLogged(),
               ),
-            );
-          },
+            ),
+          ),
         );
   }
+
+  List<Widget> _buildLogged(String token) => [
+    _buildTokenCard(token),
+    const LessonOffsetCard(),
+  ];
+
+  List<Widget> _buildNotLogged() => [
+    _buildLoginButton(),
+    Row(
+      children: [
+        const Expanded(child: Divider()),
+        Padding(
+          padding: const .symmetric(horizontal: 16),
+          child: Text('OR', style: TextStyle(fontSize: 14)),
+        ),
+        const Expanded(child: Divider()),
+      ],
+    ),
+    _buildGetTokenButton(),
+    TextField(
+      controller: _tokenTextController,
+      decoration: const InputDecoration(
+        labelText: 'Токен авторизации',
+        hintText: 'Введите токен начинающийся с eyJ...',
+        border: OutlineInputBorder(),
+      ),
+      maxLines: 3,
+    ),
+    ValueListenableBuilder(
+      valueListenable: _tokenTextController,
+      builder: (_, value, _) => ElevatedButton(
+        onPressed: value.text.isNotEmpty ? _setTokenFromField : null,
+        style: ElevatedButton.styleFrom(
+          animationDuration: .zero,
+          minimumSize: minBtnSize,
+        ),
+        child: const Text('Ввести токен'),
+      ),
+    ),
+  ];
 
   Widget _buildLoginButton() => FilledButton.icon(
     icon: const Icon(Icons.login),
