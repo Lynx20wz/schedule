@@ -1,5 +1,6 @@
 import 'package:flutter/material.dart';
-import 'package:schedule_watch/screens/empty_screen.dart';
+
+import 'empty.dart';
 
 class TokenScreen extends StatelessWidget {
   const TokenScreen({super.key});

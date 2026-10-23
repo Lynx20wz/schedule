@@ -1,9 +1,9 @@
 import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart' show ProviderScope;
+import 'package:schedule_watch/screens/screens.dart' show ScheduleScreen;
 import 'package:shared_preferences/shared_preferences.dart';
 import 'package:workmanager/workmanager.dart';
 
-import 'screens/screens.dart' show ScheduleScreen;
 import 'watch_sync.dart';
 
 @pragma('vm:entry-point')

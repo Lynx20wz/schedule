@@ -9,13 +9,14 @@ import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:http/http.dart' as http;
 import 'package:riverpod_devtools/riverpod_devtools.dart'
     show RiverpodDevToolsObserver;
-import 'package:schedule_phone/api.dart';
-import 'package:schedule_phone/lesson_offset.dart';
-import 'package:schedule_phone/token_repo.dart';
 import 'package:schedule_phone/widgets/widgets.dart';
 import 'package:url_launcher/url_launcher_string.dart';
 import 'package:uuid/v4.dart';
 import 'package:watch_connectivity/watch_connectivity.dart';
+
+import 'api.dart';
+import 'lesson_offset.dart';
+import 'token_repo.dart';
 
 const minBtnSize = Size(double.infinity, 60);
 

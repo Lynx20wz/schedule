@@ -28,14 +28,17 @@ There is no backend. Both apps talk directly to `https://authedu.mosreg.ru/api`.
    the phone).
 5. `scheduleProvider` reads `tokenProvider`, creates `MySchoolApi(token)`,
    calls `getSchedule()`, and returns a `Schedule`.
-6. The watch renders `Schedule.lessonsByDays` in a `PageView`, with the
-   current weekday selected initially.
+6. The watch renders `Schedule.lessonsByDays` in a `PageView`
+   (`ScheduleScreen`), one `ScheduleDayWidget` per day, with the current
+   weekday selected initially.
 
-The phone also stores a bell offset in `SharedPreferences` and sends it as
-`lessonOffsetSeconds`. On the watch the offset shifts both `startAt` and
-`finishAt`: a negative value marks a lesson as current earlier, a positive
-value later. Keep the phone and watch limits in sync (`maxLessonOffset`,
-currently ±5 minutes).
+The phone also stores a bell offset in `SharedPreferences`
+(`lessonOffsetProvider` in `lesson_offset.dart`) and sends it as
+`lessonOffsetSeconds`. On the watch, `WatchSync` updates the watch
+`lessonOffsetProvider` (`lib/lesson_offset.dart`). The offset shifts both
+`startAt` and `finishAt`: a negative value marks a lesson as current earlier,
+a positive value later. Keep the phone and watch limits in sync
+(`maxLessonOffset`, currently ±5 minutes).
 
 `MySchoolApi` currently hardcodes the student id and requests the current
 week (Monday through Saturday). There is no injected clock, so date-dependent
@@ -49,9 +52,10 @@ behavior is tied to `DateTime.now()`.
 - Riverpod 3 (`flutter_riverpod`, `riverpod`), `dio`, `json_serializable`,
   `shared_preferences`, `watch_connectivity`, `workmanager`,
   `wear_os_plugin`, `app_links`.
-- Lints: `package:lints/recommended.yaml` plus explicit rules in
-  `analysis_options.yaml` (single quotes, const constructors/literals,
-  explicit return types, no empty `else`).
+- Lints: root and shared use `package:lints/recommended.yaml`, watch uses
+  `package:flutter_lints/flutter.yaml`. Explicit rules include single quotes,
+  const constructors/literals, explicit return types, and no empty `else`.
+  The root also enables the `riverpod_lint` plugin.
 - `import_sorter` is available in the root dev dependencies.
 
 ## Commands
@@ -99,12 +103,13 @@ fresh clone or after changing a model.
 
 - `schedule_shared/lib/schedule_shared.dart` is the package barrel and exports
   `api.dart`, `classes/classes.dart`, and `providers/providers.dart`.
-- Keep folder barrels up to date: `classes.dart`, `providers.dart`,
-  `screens.dart`, `widgets.dart`.
-- Within a package, imports use `package:...` paths (for example
-  `package:schedule_watch/screens/screens.dart`), including internal files.
-  `always_use_package_imports` is disabled, but the existing code consistently
-  uses package imports.
+- Keep package barrels up to date where they exist: `classes.dart`,
+  `providers.dart`, `screens.dart`, `widgets.dart`.
+- File names do not repeat the folder: `widgets/lesson.dart` contains
+  `LessonWidget`, `screens/schedule.dart` contains `ScheduleScreen`.
+- Import a same-directory file with a bare relative path
+  (`import 'token.dart';`). Imports that cross directories use `package:...`
+  paths. `always_use_package_imports` is disabled.
 - Import order used in the codebase: `dart:` imports, blank line, `package:`
   imports, blank line, relative imports (when present). `import_sorter` is
   available if imports need regrouping; keep the existing grouping stable.
@@ -136,7 +141,8 @@ style instead of rewriting it into older Dart:
 ### Riverpod
 
 - Providers live in `schedule_shared` (`tokenProvider`, `scheduleProvider`) or
-  in the app package (`tokensRepoProvider` in the phone).
+  in the app packages: `tokensRepoProvider` and `lessonOffsetProvider` in
+  the phone, `lessonOffsetProvider` in the watch.
 - `scheduleProvider` is a `FutureProvider`; it throws `TokenNotFound` when
   there is no token and does not retry `TokenException`s. Keep this behavior:
   the watch relies on the exception type to show `TokenScreen`.
@@ -147,12 +153,11 @@ style instead of rewriting it into older Dart:
 
 ### Widgets
 
-- The watch UI is built from `LessonWidget`, `WatchWidget`, `EmptyScreen`, and
-  `OneDaySchedule` (`ScheduleScreen`). Timers update the clock and lesson
-  highlighting without rebuilding the whole page.
-- Current-lesson highlighting and auto-scrolling are behavior covered by
-  `LessonWidget` / `OneDaySchedule`; keep them working when changing the
-  schedule list.
+- The watch UI is built from `ScheduleScreen`, `ScheduleDayWidget`,
+  `LessonWidget`, `WatchWidget`, and `EmptyScreen`. Timers update the clock
+  and lesson highlighting without rebuilding the whole page.
+- Current-lesson highlighting and auto-scrolling live in `LessonWidget` /
+  `ScheduleDayWidget`; keep them working when changing the schedule list.
 
 ## Testing
 
@@ -166,7 +171,8 @@ style instead of rewriting it into older Dart:
 
 ## Git message style
 
-The history does **not** use Conventional Commits. Match the existing style:
+The history does **not** use Conventional Commits. Usually the subject is
+enough; add a body only when the reason is not obvious.
 
 ```text
 Area: imperative summary
@@ -177,40 +183,23 @@ Area: imperative summary
 - Use an imperative verb: `add`, `fix`, `update`, `remove`, `change`,
   `implement`. Recent commits use lowercase after the colon.
 - Keep the subject short (roughly <= 72 characters), no trailing period.
-- Separate the subject from the body with a blank line.
-- Explain **why** in the body: the problem, symptom, or constraint first.
-  Then list concrete changes as `-` bullets. Wrap lines around 72–80 chars.
+- Renames: `old.dart` -> `new.dart`.
+- Details as `-` bullets, no introductory paragraph. Wrap lines around
+  72–80 chars.
 - Put identifiers, paths, and symbols in backticks.
 - One logical change per commit. Do not mix app and shared changes unless they
   are required for the same behavior.
 
-Examples from the repository:
+Example:
 
 ```text
-Watch: fix slow cold start
+Core: drop `_screen`/`_widget` suffixes
 
-A cold start took about a minute because riverpod retries failed
-providers ~38 s in total
-
-- add `TokenException` base class and `TokenNotFound` for the missing
-  token case
-- throw `TokenNotFound` instead of `TokenInvalidException` when there is
-  no token
-- disable retries for `TokenException`, limit other errors to 5 attempts
-  (~6 s)
-```
-
-```text
-Shared: add `DetailedMark` and `MySchoolApi.getMarks`
-- Extend `Mark` base class with some fields and `toMap` method
-- Add `DetailedMark extends Mark` with date, subject
-- Implement `MySchoolApi.getMarks` returning `List<DetailedMark>`
-```
-
-```text
-Watch: fix abrupt page change when a lesson is current
-- scroll only the nearest vertical scrollable via
-  `Scrollable.maybeOf(context, axis: Axis.vertical)`
+- `empty_screen.dart` -> `empty.dart`
+- `schedule_screen.dart` -> `schedule.dart`
+- `lesson_widget.dart` -> `lesson.dart`
+- `watch_widget.dart` -> `watch.dart`
+- same-dir imports -> relative, cross-dir -> `package:`
 ```
 
 ## Gotchas

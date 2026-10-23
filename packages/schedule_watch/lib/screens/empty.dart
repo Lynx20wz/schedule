@@ -1,5 +1,5 @@
 import 'package:flutter/material.dart';
-import 'package:schedule_watch/widgets/watch_widget.dart';
+import 'package:schedule_watch/widgets/watch.dart';
 
 class EmptyScreen extends StatelessWidget {
   final String msg;

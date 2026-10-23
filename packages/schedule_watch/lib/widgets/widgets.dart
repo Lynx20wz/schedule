@@ -1,2 +1,3 @@
-export 'lesson_widget.dart';
-export 'watch_widget.dart';
+export 'lesson.dart';
+export 'schedule_day.dart';
+export 'watch.dart';

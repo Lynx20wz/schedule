@@ -2,8 +2,9 @@ import 'dart:developer' show log;
 
 import 'package:dio/dio.dart';
 import 'package:intl/intl.dart' show DateFormat;
-import 'package:schedule_shared/exceptions.dart';
-import 'package:schedule_shared/schedule_shared.dart';
+
+import 'exceptions.dart';
+import 'schedule_shared.dart';
 
 final Dio dio = Dio(
   BaseOptions(

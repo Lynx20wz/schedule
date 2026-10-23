@@ -1,7 +1,7 @@
 import 'package:flutter/material.dart';
 import 'package:flutter_test/flutter_test.dart';
 import 'package:schedule_shared/classes/classes.dart';
-import 'package:schedule_watch/widgets/lesson_widget.dart';
+import 'package:schedule_watch/widgets/lesson.dart';
 
 extension LessonMock on Lesson {
   static Lesson mock({

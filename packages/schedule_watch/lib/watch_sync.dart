@@ -4,8 +4,9 @@ import 'dart:developer' show log;
 import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:schedule_shared/providers/providers.dart' show tokenProvider;
-import 'package:schedule_watch/providers/providers.dart';
 import 'package:watch_connectivity/watch_connectivity.dart';
+
+import 'lesson_offset.dart';
 
 class WatchSync extends ConsumerStatefulWidget {
   final Widget child;
