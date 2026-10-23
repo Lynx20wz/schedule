@@ -31,8 +31,6 @@ class _AuthScreenState extends ConsumerState<AuthScreen> {
   StreamSubscription<Uri>? _linkSubscription;
   Timer? _offsetSyncTimer;
 
-  Future<TokensRepository> get _repo => ref.read(tokensRepoProvider.future);
-
   // System
   @override
   void initState() {
@@ -55,9 +53,9 @@ class _AuthScreenState extends ConsumerState<AuthScreen> {
     final offset = ref.read(lessonOffsetProvider).value ?? .zero;
 
     try {
-      final repo = await _repo;
+      final tokens = await ref.read(tokensProvider.future);
       await _watchConnectivity.updateApplicationContext({
-        'token': repo.token,
+        'token': tokens?.access,
         'lessonOffsetSeconds': offset.inSeconds,
       });
     } catch (e, st) {
@@ -72,9 +70,7 @@ class _AuthScreenState extends ConsumerState<AuthScreen> {
 
   // Token
   Future<void> _setToken(Tokens tokens) async {
-    (await _repo).setTokens(tokens);
-    await _sendWatchContext();
-    ref.invalidate(tokensRepoProvider);
+    await ref.read(tokensProvider.notifier).setTokens(tokens);
     _showSnackBar('Токен сохранен');
   }
 
@@ -89,13 +85,11 @@ class _AuthScreenState extends ConsumerState<AuthScreen> {
       return;
     }
 
-    await _setToken(Tokens(token: text, refreshToken: null));
+    await _setToken(Tokens(access: text, refresh: null));
   }
 
   Future<void> _clearToken() async {
-    (await _repo).clear();
-    await _sendWatchContext();
-    ref.invalidate(tokensRepoProvider);
+    await ref.read(tokensProvider.notifier).clear();
     _showSnackBar('Токен сброшен');
   }
 
@@ -121,7 +115,6 @@ class _AuthScreenState extends ConsumerState<AuthScreen> {
       default:
         log('Unknown host: ${uri.host}');
     }
-    ref.invalidate(tokensRepoProvider);
   }
 
   void _showSnackBar(String message, {Color? color}) =>
@@ -142,19 +135,23 @@ class _AuthScreenState extends ConsumerState<AuthScreen> {
       _offsetSyncTimer = Timer(const Duration(seconds: 1), _sendWatchContext);
     });
 
+    ref.listen(tokensProvider, (_, next) {
+      if (next.hasValue) unawaited(_sendWatchContext());
+    });
+
     return ref
-        .watch(tokensRepoProvider)
+        .watch(tokensProvider)
         .when(
           error: (e, _) => Text('Error: $e'),
           loading: () => const CircularProgressIndicator(),
-          data: (repo) => Scaffold(
+          data: (tokens) => Scaffold(
             appBar: AppBar(title: const Text('Авторизация часов')),
             body: SingleChildScrollView(
               padding: const EdgeInsets.all(20.0),
               child: Column(
                 spacing: 16,
-                children: repo.token != null
-                    ? _buildLogged(repo.token!)
+                children: tokens != null
+                    ? _buildLogged(tokens.access)
                     : _buildNotLogged(),
               ),
             ),

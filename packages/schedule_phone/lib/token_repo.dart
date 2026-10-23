@@ -2,40 +2,51 @@ import 'package:riverpod/riverpod.dart';
 import 'package:shared_preferences/shared_preferences.dart';
 
 final class Tokens({
-  required final String token,
-  required final String? refreshToken,
+  required final String access,
+  required final String? refresh,
 }) {
-  this
-    : assert(isValid(token) && (refreshToken == null || isValid(refreshToken)));
+  this : assert(isValid(access) && (refresh == null || isValid(refresh)));
   factory fromMap(Map<String, dynamic> map) =>
-      Tokens(token: map['token'], refreshToken: map['refresh_token']);
+      Tokens(access: map['token'], refresh: map['refresh_token']);
   static bool isValid(String value) => value.startsWith('eyJhb');
 }
 
-class TokensRepository(final SharedPreferences _prefs) {
-  String? get token => _prefs.getString('token');
-  String? get refreshToken => _prefs.getString('refresh_token');
+final tokensProvider = AsyncNotifierProvider<TokensNotifier, Tokens?>(
+  TokensNotifier.new,
+);
 
-  Tokens get tokens => Tokens(token: token!, refreshToken: refreshToken);
+class TokensNotifier extends AsyncNotifier<Tokens?> {
+  static const _accessKey = 'token';
+  static const _refreshKey = 'refresh_token';
 
-  set token(String? token) =>
-      token != null ? _prefs.setString('token', token) : _prefs.remove('token');
+  SharedPreferences? _prefs;
 
-  set refreshToken(String? refreshToken) => refreshToken != null
-      ? _prefs.setString('refresh_token', refreshToken)
-      : _prefs.remove('refresh_token');
+  @override
+  Future<Tokens?> build() async {
+    final prefs = _prefs = await SharedPreferences.getInstance();
+    final access = prefs.getString(_accessKey);
+    if (access == null) return null;
 
-  void setTokens(Tokens tokens) {
-    token = tokens.token;
-    refreshToken = tokens.refreshToken;
+    return Tokens(access: access, refresh: prefs.getString(_refreshKey));
   }
 
-  void clear() {
-    token = null;
-    refreshToken = null;
+  Future<void> setTokens(Tokens tokens) async {
+    final prefs = _prefs ??= await SharedPreferences.getInstance();
+    await prefs.setString(_accessKey, tokens.access);
+
+    final refresh = tokens.refresh;
+    await (refresh == null
+        ? prefs.remove(_refreshKey)
+        : prefs.setString(_refreshKey, refresh));
+
+    state = AsyncData(tokens);
+  }
+
+  Future<void> clear() async {
+    final prefs = _prefs ??= await SharedPreferences.getInstance();
+    await prefs.remove(_accessKey);
+    await prefs.remove(_refreshKey);
+
+    state = const AsyncData(null);
   }
 }
-
-final tokensRepoProvider = FutureProvider<TokensRepository>(
-  (ref) async => TokensRepository(await SharedPreferences.getInstance()),
-);
