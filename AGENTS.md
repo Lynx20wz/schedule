@@ -93,9 +93,7 @@ package directory, not the repository root.
 ### Code generation
 
 `lesson.g.dart` and `mark.g.dart` are generated from the `@JsonSerializable`
-models by `build_runner`. Do not edit them by hand. They are currently not
-tracked in Git, so run `build_runner` in `packages/schedule_shared` after a
-fresh clone or after changing a model.
+models by `build_runner`. Do not edit them by hand.
 
 ## Architecture and conventions
 
