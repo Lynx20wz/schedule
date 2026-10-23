@@ -1,64 +1,37 @@
-class Mark(
-  final int id,
-  final String value,
-  final String? comment,
-  final int weight,
-  final bool isExam,
-  final bool isPoint,
-) {
-  factory Mark.fromMap(Map<String, dynamic> map) => Mark(
-    map['id'] as int,
-    map['value'] as String,
-    map['comment'] as String?,
-    map['weight'] as int,
-    map['is_exam'] as bool,
-    map['is_point'] as bool,
-  );
+import 'package:json_annotation/json_annotation.dart';
 
-  Map<String, dynamic> toMap() => {
-    'id': id,
-    'value': value,
-    'comment': comment,
-    'weight': weight,
-    'is_exam': isExam,
-    'is_point': isPoint,
-  };
+part 'mark.g.dart';
+
+@JsonSerializable(fieldRename: .snake)
+class Mark(
+  final String value, {
+  final int? id,
+  final String? comment,
+  final int weight = 1,
+  final bool isExam = false,
+  final bool isPoint = false,
+}) {
+  factory Mark.fromJson(Map<String, dynamic> json) => _$MarkFromJson(json);
+  Map<String, dynamic> toJson() => _$MarkToJson(this);
 }
 
+@JsonSerializable(fieldRename: .snake)
 class DetailedMark(
+  super.value, {
   super.id,
-  super.value,
   super.comment,
   super.weight,
   super.isExam,
   super.isPoint,
-  final DateTime date,
-  final String subjectName,
-  final String controlFormName,
-  final DateTime createdAt,
-  final DateTime updatedAt,
-) extends Mark {
-  factory DetailedMark.fromMap(Map<String, dynamic> map) => DetailedMark(
-    map['id'] as int,
-    map['value'] as String,
-    map['comment'] as String?,
-    map['weight'] as int,
-    map['is_exam'] as bool,
-    map['is_point'] as bool,
-    DateTime.parse(map['date'] as String),
-    map['subject_name'] as String,
-    map['control_form_name'] as String,
-    DateTime.parse(map['created_at'] as String),
-    DateTime.parse(map['updated_at'] as String),
-  );
+  required final DateTime date,
+  required final String subjectName,
+  required final String controlFormName,
+  required final DateTime createdAt,
+  required final DateTime updatedAt,
+}) extends Mark {
+  factory DetailedMark.fromJson(Map<String, dynamic> json) =>
+      _$DetailedMarkFromJson(json);
 
   @override
-  Map<String, dynamic> toMap() => {
-    ...super.toMap(),
-    'date': date.toIso8601String(),
-    'subject_name': subjectName,
-    'control_form_name': controlFormName,
-    'created_at': createdAt.toIso8601String(),
-    'updated_at': updatedAt.toIso8601String(),
-  };
+  Map<String, dynamic> toJson() => _$DetailedMarkToJson(this);
 }

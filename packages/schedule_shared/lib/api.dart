@@ -111,7 +111,7 @@ class MySchoolApi {
     final data = response.data as Map<String, dynamic>;
 
     return List<DetailedMark>.from(
-      data['response']?.map((item) => DetailedMark.fromMap(item)) ?? [],
+      data['response']?.map((item) => DetailedMark.fromJson(item)) ?? [],
     );
   }
 }

@@ -31,7 +31,7 @@ class Schedule({
     : this(
         totalCount: map['total_count'] ?? 0,
         lessons: List<Lesson>.from(
-          map['response']?.map((item) => Lesson.fromMap(item)) ?? [],
+          map['response']?.map((item) => Lesson.fromJson(item)) ?? [],
         ),
       );
 
